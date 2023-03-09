@@ -1,0 +1,21 @@
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<br><br><br><br>
+<div class="signUpBg">
+
+<h1>Log In</h1>
+
+  <label for="username">Username*</label>
+  <br><br>
+  <input type="text" id="username" required [(ngModel)]="username" name="username" placeholder="Type your username">
+  <br><br>
+  <label for="password">Password*</label>
+  <br><br>
+  <input type="text" id="password" required [(ngModel)]="password" name="password" placeholder="Type your password">
+  <br><br>
+<button class="button" (click)="verifyUser()">Log In</button>
+
+<h3>Message:</h3>
+<h3>{{message}}</h3>
+
+</div>

@@ -1,0 +1,44 @@
+
+.signUpBg {
+    color: white;
+    width: 50%;
+    background: #334477;
+    align-items: center;
+    text-align: justify;
+    font-family: Roboto;
+    margin-left: 20%;
+    padding: 1%;
+    padding-left: 5%;
+    border-radius: 10px;
+}
+
+.button {
+    background-color: #EB287D;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
+
+  input {
+    width: 50%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .signUpBg {
+      margin-left: 10%;
+      width: 70%;
+    }
+
+    input {
+        width: 80%;
+    }
+  }

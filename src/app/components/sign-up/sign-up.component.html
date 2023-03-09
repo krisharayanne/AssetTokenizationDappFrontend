@@ -1,0 +1,41 @@
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<br><br><br><br>
+<div class="signUpBg">
+<h1>Sign Up</h1>
+<label for="name">Name*</label>
+<br><br>
+  <input type="text" id="name"  required [(ngModel)]="name" name="name" placeholder="Type your name">
+  <br><br>
+  <label for="emailAddress">Email Address*</label>
+  <br><br>
+  <input type="text" id="emailAddress" required [(ngModel)]="emailAddress" name="emailAddress" placeholder="Type your email address">
+  <br><br>
+  <label for="contactNumber">Contact Number*</label>
+  <br><br>
+  <input type="text" id="contactNumber" required [(ngModel)]="contactNumber" name="contactNumber" placeholder="Type your contact number">
+  <br><br>
+  <label for="username">Username*</label>
+  <br><br>
+  <input type="text" id="username" required [(ngModel)]="username" name="username" placeholder="Type your username">
+  <br><br>
+  <label for="password">Password*</label>
+  <br><br>
+  <input type="text" id="password" required [(ngModel)]="password" name="password" placeholder="Type your password">
+  <br><br>
+  <!-- <label>Select Team ID:</label>
+<br><br>
+  <select [(ngModel)]="teamID">
+    <option [ngValue]="null" [disabled]="true" hidden>Select Team ID:</option>
+    <option *ngFor="let team of teamArray" [value]="team">
+      {{team}}
+    </option>
+</select> -->
+<br><br>
+<button class="button" (click)="addUser()">Sign Up</button>
+<h3>Message: </h3>
+<h3>{{message}}</h3>
+<h3>Transaction Hash: </h3>
+<h3><a [style.color] = "'white'" href="{{transactionHash}}">{{transactionHash}}</a></h3>
+
+</div>

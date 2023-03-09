@@ -1,0 +1,82 @@
+<h1>List Asset</h1>
+<label class="form-label">Choose File</label>
+    <input type="file" (change)="changeHandler($event)"/>
+    <button (click)="handleSubmission()">Submit</button>
+
+    <h1>Dropzone</h1>
+<!-- <div class="dropzone" appDnd (fileDropped)="onFileDropped($event)">
+     <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" /> 
+    <img src="/assets/img/legit-ic-upload-file.png" alt="" class="dropzoneIcUploadFileImg">
+    <h3>Drag and drop file here</h3>
+    <h3>or</h3>
+    <label for="fileDropRef">Browse for file</label>
+</div> -->
+
+<div class="container" appDnd (fileDropped)="onFileDropped($event)">
+    <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event)" />
+    <img src="/assets/img/legit-ic-upload-file.png" alt="" class="dropzoneIcUploadFileImg">
+    <h3>Drag and drop file here</h3>
+    <h3>or</h3>
+    <label for="fileDropRef">Browse for file</label>
+  </div>
+  <div class="files-list">
+    <div class="single-file" *ngFor="let file of files; let i = index">
+      <img src="assets/img/legit-ic-file.png" class="filesListIcon" alt="file">
+      <div class="info">
+        <h4 class="name">
+          {{ file?.name }}
+        </h4>
+        <p class="size">
+          {{ formatBytes(file?.size) }}
+        </p>
+        <app-progress [progress]="file?.progress"></app-progress>
+      </div>
+      <img src="assets/img/legit-ic-delete-file.png" class="delete filesListIcon" width="20px" alt="file" (click)="deleteFile(i)">
+    </div>
+  </div>
+
+  <br><br>
+  <select [(ngModel)]="assetType">
+    <option [ngValue]="null" [disabled]="true" hidden>Select Asset Type:</option>
+    <option *ngFor="let assetType of assetTypeArray" [value]="assetType">
+      {{assetType}}
+    </option>
+</select>
+<br><br>
+
+<label for="assetCategory">Asset Category*</label>
+<br><br>
+<input type="text" id="assetCategory" required [(ngModel)]="assetCategory" name="assetCategory" placeholder="Type your asset category">
+<br><br>
+
+<br><br>
+<label for="assetName">Asset Name*</label>
+<br><br>
+<input type="text" id="assetName" required [(ngModel)]="assetName" name="assetName" placeholder="Type your asset name">
+<br><br>
+
+<br><br>
+<p><label for="assetDescription">Asset Description*</label></p>
+  <textarea id="assetDescription" required [(ngModel)]="assetDescription" name="assetDescription" placeholder="Type your asset description"
+   rows="8" cols="100"></textarea>
+  <br><br>
+
+  <label for="tokenQuantity">Token Quantity*</label>
+<br><br>
+<input type="number" pattern=" 0+\.[0-9]*[1-9][0-9]*$" onkeypress="return event.charCode >= 48 && event.charCode <= 57" id="tokenQuantity" required [(ngModel)]="tokenQuantity" name="tokenQuantity"
+placeholder="Type your token quantity">
+<br><br>
+
+<label for="tokenPrice">Token Price in $USD*</label>
+<br><br>
+<input type="number" pattern=" 0+\.[0-9]*[1-9][0-9]*$" onkeypress="return event.charCode >= 48 && event.charCode <= 57" id="tokenPrice" required [(ngModel)]="tokenPriceInUSD" name="tokenPrice"
+placeholder="Type your token price">
+<br><br>
+<button class="button" (click)="listAsset()">List Asset</button>
+<p>Only positive whole numbers allowed!<br>
+    No decimal or negative numbers will be accepted!</p>
+
+<!-- Simply provide the order request to be processed -->
+<wm-paypal [request]="order"  [style.display]="showPayPalButton?'block':'none'"
+color="gold" 
+shape="pill" ></wm-paypal>

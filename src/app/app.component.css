@@ -1,0 +1,101 @@
+.guestHeader {
+    width: 100%;
+    font-family: 'Roboto';
+    font-size: 20px;
+}
+
+.userHeader {
+    font-family: 'Roboto';
+    font-size: 20px;
+}
+
+div#one ul li {
+    margin-left: 4%;
+}
+
+div#one ul li a {
+    padding-top: 20px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #F7F7F7;
+  }
+  
+  li {
+    float: left;
+    margin-left: 10%;
+  }
+  
+  li a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding-top: 20px;
+    text-decoration: none;
+    font-weight: 700;
+  }
+  
+  li a:hover {
+    color: #EB287D;
+  }
+  
+  li a:active {
+    color: #EB287D;
+
+  }
+
+  .mainHeader {
+    color: lightskyblue;
+  }
+
+
+  .menuIcon {
+    margin-top: -13%;
+    margin-right: 10%;
+    float: right;
+    width: 10%;
+    height: 10%;
+    display: none;
+  }
+
+  div#two li a{
+    display: none;
+  }
+
+  div#three li a{
+    display: none;
+  }
+
+  
+  @media only screen and (max-width: 600px) {
+    .menuIcon {
+        display: block;
+    }
+    .headerLinks {
+        display: none !important;
+    }
+
+    div#two li a{
+        display: block;
+    }
+
+    div#two li {
+        clear: both;
+    }
+
+    div#three li a{
+        display: block;
+    }
+
+    div#three li {
+        clear: both;
+    }
+  }

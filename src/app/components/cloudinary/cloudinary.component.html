@@ -1,0 +1,17 @@
+<p>cloudinary works!</p>
+<div class="container">
+    <div class="row">
+      <div class="drop-box" corpImgUpload (dropFiles)="onDropFiles($event)">
+        <span class="message">Drop File Images Here</span>
+      </div>
+    </div>
+    <div class="row">
+      <a
+        *ngFor="let file of imageFiles$ | async"
+        [href]="file.url"
+        target="_blank"
+      >
+        <img [src]="file.url" />
+      </a>
+    </div>
+  </div>
