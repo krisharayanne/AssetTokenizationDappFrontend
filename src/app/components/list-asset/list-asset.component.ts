@@ -36,32 +36,94 @@ export class ListAssetComponent implements OnInit, OnApprove {
   assetTokenizationFeeInUSD:any;
   order: OrderRequest;
   showPayPalButton:boolean;
+  companyWalletAddress:any;
+  companyWalletMATICBalance:any;
+  listAssetReceipt:any;
+  message:any;
+  transactionHash:any;
   assetTypeArray = ['Tangible', 'Intangible'];
 
   // start paypal payment stuff
 
   // Implements the onApprove hook
-  onApprove(data: OnApproveData, actions: OnApproveActions) {
+  async onApprove(data: OnApproveData, actions: OnApproveActions) {
     
     console.log('Transaction Approved:', data);
 
+    try { // start try statement
+      
     // Captures the transaction
-    return actions.order.capture().then(details => {
-
-      console.log('Transaction completed by', details);
+    let details = await actions.order.capture();
       // if res.status 200, i.e. payment successful
-// check if company wallet has estimated gas fee * 2 to call addAsset function in smart contract
+      if(details) {
+      console.log('Transaction completed by', details);
+      
+      // check if company wallet has estimated gas fee * 2 to call addAsset function in smart contract
+      this.companyWalletAddress = this.contractsService.getCompanyWalletAddress();
+      this.companyWalletMATICBalance = await this.contractsService.getWalletMATICBalance(this.companyWalletAddress);
 
-// upload asset image file to IPFS via Pinata (Authorization: JWT, API Key, Client Secret)
-// write asset image CID hash, asset name, asset description to asset metadata (json file)
-// upload asset metadata (json file) to IPFS via Pinata (Authorization: JWT, API Key, Client Secret)
-// call addAsset function in smart contract and pass in asset metadata CID hash
-// display transaction hash
+      // upload asset image file to IPFS via Pinata (Authorization: JWT, API Key, Client Secret)
+      let assetImagesIPFSHash = [];
+      for(let arrayIndex = 0; arrayIndex < this.files.length; arrayIndex++) { // start for loop
+      console.log("Attempting to upload: " + this.files[arrayIndex].name + " to Pinata!");
+      // the file name is a concatenation of the user's ID and the file arrayIndex or number, the separating token is a semicolon
+      let tempFileName = this.assetName + ";" + arrayIndex.toString();
+      let pinataFileUploadInfo = await this.uploadFileToPinata(this.files[arrayIndex], tempFileName);
+      if(pinataFileUploadInfo) {
+        console.log("pinataFileUploadInfo for " + tempFileName + ": " + pinataFileUploadInfo);
+        assetImagesIPFSHash.push(pinataFileUploadInfo.IpfsHash);
 
+        // if on final iteration of loop, execute the remaining steps
+        if(arrayIndex == this.files.length-1){ // start check if final loop iteration
+        // write asset image CID hash, asset name, asset description to asset metadata (json file)
+        let assetMetadata = {
+          assetImages: assetImagesIPFSHash.toString(),
+          assetName: this.assetName.toString(),
+          assetDescription: this.assetDescription.toString(),
+        };
 
-      // Call your server to handle the transaction
-      return Promise.reject('Transaction aborted by the server');
-    });
+        let tempMetadataFileName = this.assetName + ";" + "Metadata";
+        // upload asset metadata (json file) to IPFS via Pinata (Authorization: JWT, API Key, Client Secret)
+        let pinataMetadataFileUploadInfo = await this.uploadJSONToPinata(assetMetadata.assetImages, assetMetadata.assetName, assetMetadata.assetDescription, tempMetadataFileName);
+        if(pinataMetadataFileUploadInfo) {
+          console.log("pinataMetadataFileUploadInfo for " + this.assetName + ": " + pinataMetadataFileUploadInfo);
+          this.assetMetadataCIDHash = pinataMetadataFileUploadInfo.IpfsHash;
+          console.log("assetMetadataCIDHash: " + this.assetMetadataCIDHash);
+        }
+
+        // call addAsset function in smart contract and pass in asset metadata CID hash
+        this.listAssetReceipt = await this.contractsService.listAsset(this.individualID, this.assetTypeUint8Version, this.assetCategory, this.assetMetadataCIDHash,
+          parseInt(this.tokenQuantity), parseInt(this.tokenPriceInUSD));
+
+          if (window.confirm('Click ok to view your minted asset tokens on the blockchain!')) {
+          window.open("https://mumbai.polygonscan.com/tx/" + this.listAssetReceipt.transactionHash.toString());
+          }
+
+        // display transaction hash
+        this.setMessageAndTransactionHash(this.listAssetReceipt);
+        
+
+      } // end check if final loop iteration
+
+      }
+      } // end for loop
+
+      
+
+      }
+
+    } // end try statement
+    catch(error) { // start catch statement
+
+      console.log("Error in completing PayPal transaction: " + error);
+
+    } // end catch statement
+
+    // return actions.order.capture().then(details => {
+    //   // Call your server to handle the transaction
+    //   return Promise.reject('Transaction aborted by the server');
+    // });
+
   }
   // end paypal payment stuff
 
@@ -80,6 +142,11 @@ export class ListAssetComponent implements OnInit, OnApprove {
       this.router.navigate(['Login']);
     }
 
+  }
+
+  setMessageAndTransactionHash(tempReceipt:any) {
+    this.message = "Click on the link below to view your minted asset tokens on the blockchain!";
+    this.transactionHash = "https://mumbai.polygonscan.com/tx/" + tempReceipt.transactionHash.toString();
   }
 
 changeHandler(event:any) {
@@ -110,12 +177,76 @@ async handleSubmission() {
         }
       });
       console.log(res.data);
+      return res.data;
     } catch (error) {
       console.log(error);
     }
 }
 
+async uploadFileToPinata(fileObject:any, fileName:any) {
+  const formData = new FormData();
+    
+    formData.append('file', fileObject);
 
+    const metadata = JSON.stringify({
+      name: fileName,
+    });
+    formData.append('pinataMetadata', metadata);
+    
+    const options = JSON.stringify({
+      cidVersion: 0,
+    })
+    formData.append('pinataOptions', options);
+
+    try{
+      const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+        maxBodyLength: 1000000000000000,
+        headers: {
+          // 'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+          Authorization: JWT
+        }
+      });
+      console.log(res.data);
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+}
+
+async uploadJSONToPinata(assetImages:any, assetName:any, assetDescription:any, fileName:any) {
+var data = JSON.stringify({
+  "pinataOptions": {
+    "cidVersion": 1
+  },
+  "pinataMetadata": {
+    "name": fileName,
+    "keyvalues": {
+      "customKey": "customValue",
+      "customKey2": "customValue2"
+    }
+  },
+  "pinataContent": {
+    "assetImages": assetImages,
+    "assetName": assetName,
+    "assetDescription": assetDescription,
+  }
+});
+
+var config = {
+  method: 'post',
+  url: 'https://api.pinata.cloud/pinning/pinJSONToIPFS',
+  headers: { 
+    'Content-Type': 'application/json', 
+    'Authorization': JWT
+  },
+  data : data
+};
+
+const res = await axios(config);
+
+console.log(res.data);
+return res.data;
+}
 
 @ViewChild("fileDropRef", { static: false }) fileDropEl: ElementRef;
 files: any[] = [];

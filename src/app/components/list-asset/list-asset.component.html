@@ -80,3 +80,8 @@ placeholder="Type your token price">
 <wm-paypal [request]="order"  [style.display]="showPayPalButton?'block':'none'"
 color="gold" 
 shape="pill" ></wm-paypal>
+
+<h3>Message: </h3>
+<h3>{{message}}</h3>
+<h3>Transaction Hash: </h3>
+<h3><a [style.color] = "'black'" href="{{transactionHash}}">{{transactionHash}}</a></h3>

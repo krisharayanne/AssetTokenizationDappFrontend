@@ -57,6 +57,16 @@ export class ContractsService {
   return user;
    }
 
+   getCompanyWalletAddress() {
+    return this._web3.eth.defaultAccount;
+   }
+
+   async getWalletMATICBalance(walletAddress:any){
+    let rawUserMATICBalance = await this._web3.eth.getBalance(walletAddress);
+    let userMATICBalance = await this._web3.utils.fromWei(rawUserMATICBalance, "ether");
+    console.log("userMATICBalance: " + userMATICBalance);
+    return userMATICBalance;
+     }
     
  async getUserCredentials(userID:any){
   let userCredentials = await this._tokenContract.methods.userIDToUserCredentials(userID).call();
@@ -89,8 +99,33 @@ export class ContractsService {
   return receipt;
    }
 
-   async estimateGasFeeForListAsset(userID:any, assetType:any, assetCategory:any, assetMetadata:any, tokenQuantity:any,
-    tokenPrice:any){
+   async listAsset(userID:any, assetType:any, assetCategory:any, assetMetadata:any, tokenQuantity:any, tokenPrice:any){
+    let nonce = await this._web3.eth.getTransactionCount(this._web3.eth.defaultAccount, 'pending');
+    let gasPrice = await this._web3.eth.getGasPrice();
+    let gasLimit = 6000000;
+     
+    const tx = this._tokenContract.methods.addAsset(userID, assetType, assetCategory, assetMetadata, tokenQuantity,
+      tokenPrice);
+    const gas = await tx.estimateGas({from: this._web3.eth.defaultAccount});
+    const data = tx.encodeABI();
+    let rawTx = {
+      nonce: nonce,
+      gas: gas,
+      gasPrice: gasPrice,
+      gasLimit: gasLimit,
+      to: this._tokenContractAddress, 
+      from: this._web3.eth.defaultAccount,
+      data: data,
+  };
+  
+  let signedTx = await this._web3.eth.accounts.signTransaction(rawTx, '3386b9cbe2249e40d1d0614c820b804207a930bba1fb2e6ae56a7f239d684af4'); // Issue 2
+  let receipt = await this._web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+  
+  console.log(receipt);
+  return receipt;
+   }
+
+   async estimateGasFeeForListAsset(userID:any, assetType:any, assetCategory:any, assetMetadata:any, tokenQuantity:any, tokenPrice:any){
     let nonce = await this._web3.eth.getTransactionCount(this._web3.eth.defaultAccount, 'pending');
     let gasPrice = await this._web3.eth.getGasPrice();
     let gasLimit = 6000000;
